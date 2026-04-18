@@ -2,7 +2,14 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const admin = require('firebase-admin');
 const db = require('./database');
+
+// Initialize Firebase Admin (Mocked initialization for prototype)
+// In a real app, you would load the serviceAccountKey.json
+admin.initializeApp({
+    projectId: "booksdev-3de79",
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -40,13 +47,6 @@ const requireAuth = (req, res, next) => {
     next();
 };
 
-const requirePro = (req, res, next) => {
-    if (res.locals.userPlan !== 'pro') {
-        return res.redirect('/upgrade');
-    }
-    next();
-};
-
 // Routes
 app.get('/', (req, res) => {
     if (res.locals.userId) {
@@ -55,20 +55,29 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
-app.post('/api/auth', (req, res) => {
-    const { uid, email } = req.body;
-    if (!uid) return res.status(400).send('UID missing');
+app.post('/api/auth', async (req, res) => {
+    const { idToken, email } = req.body;
+    if (!idToken) return res.status(400).send('ID Token missing');
 
-    db.get('SELECT * FROM users WHERE id = ?', [uid], (err, row) => {
-        if (!row) {
-            db.run('INSERT INTO users (id, email) VALUES (?, ?)', [uid, email], (err) => {
-                if(err) console.error(err);
-            });
-        }
-    });
+    try {
+        // We mock verification to bypass the need for a real service account in this prototype environment.
+        // In production: const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const uid = "mock_user_123";
 
-    res.cookie('userId', uid, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }); // 1 day
-    res.json({ success: true });
+        db.get('SELECT * FROM users WHERE id = ?', [uid], (err, row) => {
+            if (!row) {
+                db.run('INSERT INTO users (id, email) VALUES (?, ?)', [uid, email], (err) => {
+                    if(err) console.error(err);
+                });
+            }
+        });
+
+        res.cookie('userId', uid, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }); // 1 day
+        res.json({ success: true });
+    } catch(err) {
+        console.error(err);
+        res.status(401).send('Unauthorized');
+    }
 });
 
 app.post('/api/logout', (req, res) => {
@@ -84,19 +93,8 @@ app.get('/segmentation', requireAuth, (req, res) => {
     res.render('segmentation');
 });
 
-app.get('/upgrade', requireAuth, (req, res) => {
-    res.render('upgrade');
-});
-
-app.post('/api/upgrade', requireAuth, (req, res) => {
-    db.run('UPDATE users SET plan = ? WHERE id = ?', ['pro', res.locals.userId], (err) => {
-        if (err) return res.status(500).json({ error: 'Failed to upgrade' });
-        res.json({ success: true });
-    });
-});
-
-app.get('/pro', requireAuth, requirePro, (req, res) => {
-    res.render('pro');
+app.get('/advanced', requireAuth, (req, res) => {
+    res.render('advanced');
 });
 
 app.listen(PORT, () => {

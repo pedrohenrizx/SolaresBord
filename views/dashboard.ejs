@@ -1,8 +1,7 @@
 <%- include('partials/header') %>
 
-<div class="flex flex-col md:flex-row min-h-screen">
     <!-- Sidebar -->
-    <aside class="w-full md:w-64 bg-white dark:bg-gray-800 shadow-md md:flex-shrink-0">
+    <aside id="sidebar" class="absolute md:static z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 w-64 bg-white dark:bg-gray-800 shadow-lg md:shadow-md md:flex-shrink-0 min-h-[calc(100vh-4rem)] flex flex-col justify-between">
         <div class="p-4">
             <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Menu</h2>
             <ul class="space-y-2">
@@ -16,104 +15,176 @@
                         <i class="fas fa-users w-5"></i> Segmentação
                     </a>
                 </li>
-                <% if (locals.userPlan !== 'pro') { %>
                 <li>
-                    <a href="/upgrade" class="block px-4 py-2 rounded-lg text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors font-medium">
-                        <i class="fas fa-star w-5"></i> Upgrade para Pro
+                    <a href="/advanced" class="block px-4 py-2 rounded-lg text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors font-medium group">
+                        <i class="fas fa-cogs w-5 group-hover:rotate-90 transition-transform"></i> Funcionalidades Avançadas
                     </a>
                 </li>
-                <% } else { %>
-                <li>
-                    <a href="/pro" class="block px-4 py-2 rounded-lg text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors font-medium">
-                        <i class="fas fa-crown w-5"></i> Funcionalidades Pro
-                    </a>
-                </li>
-                <% } %>
             </ul>
+        </div>
+
+        <!-- Sidebar Collapse Hint -->
+        <div class="p-4 border-t border-gray-100 dark:border-gray-700 hidden md:block text-center text-xs text-gray-400 cursor-pointer hover:text-gray-600 transition-colors">
+            <i class="fas fa-angle-double-left mr-1"></i> Ocultar Menu
         </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-4 md:p-8">
-        <div class="mb-8 flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Visão Geral</h1>
-            <% if (locals.userPlan === 'pro') { %>
-                <span class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase shadow-sm">Pro Plan</span>
-            <% } else { %>
-                <span class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-xs font-bold uppercase shadow-sm">Free Plan</span>
-            <% } %>
+    <div class="flex-1 p-4 md:p-8 w-full overflow-x-hidden bg-gray-50/50 dark:bg-gray-900/50">
+        <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold">Visão Geral</h1>
+                <p class="text-sm text-gray-500" id="realTimeClock">Carregando hora...</p>
+            </div>
+
+            <div class="flex gap-2">
+                <!-- Date Range Picker Mock -->
+                <select class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-lg shadow-sm text-sm p-2 focus:ring-primary focus:border-primary cursor-pointer">
+                    <option>Últimos 7 dias</option>
+                    <option selected>Últimos 30 dias</option>
+                    <option>Este Ano</option>
+                </select>
+                <!-- Export Button -->
+                <button class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 shadow-sm" onclick="showToast('Relatório PDF sendo gerado...', 'info')">
+                    <i class="fas fa-file-pdf text-red-500"></i> Exportar
+                </button>
+            </div>
         </div>
 
         <!-- KPIs -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:-translate-y-1 transition-transform cursor-default" title="Total de clientes que compraram nos últimos 30 dias">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Clientes Ativos</p>
-                        <h3 class="text-2xl font-bold mt-1">1,248</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Clientes Ativos</p>
+                        <h3 class="text-xl font-bold mt-1">1,248</h3>
                     </div>
-                    <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-500">
-                        <i class="fas fa-users"></i>
-                    </div>
+                    <div class="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-500"><i class="fas fa-users text-sm"></i></div>
                 </div>
-                <p class="text-xs text-green-500 mt-2"><i class="fas fa-arrow-up"></i> 12% desde o último mês</p>
+                <p class="text-[10px] text-green-500 mt-2"><i class="fas fa-arrow-up"></i> 12% mês</p>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:-translate-y-1 transition-transform cursor-default" title="Porcentagem de visitantes que realizaram compra">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Taxa de Conversão</p>
-                        <h3 class="text-2xl font-bold mt-1">3.4%</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Conversão</p>
+                        <h3 class="text-xl font-bold mt-1">3.4%</h3>
                     </div>
-                    <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-500">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
+                    <div class="p-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-500"><i class="fas fa-chart-line text-sm"></i></div>
                 </div>
-                <p class="text-xs text-green-500 mt-2"><i class="fas fa-arrow-up"></i> 0.8% desde o último mês</p>
+                <p class="text-[10px] text-green-500 mt-2"><i class="fas fa-arrow-up"></i> 0.8% mês</p>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:-translate-y-1 transition-transform cursor-default" title="Valor do Tempo de Vida do Cliente (Estimativa)">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Receita Média</p>
-                        <h3 class="text-2xl font-bold mt-1">R$ 450</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">LTV</p>
+                        <h3 class="text-xl font-bold mt-1">R$ 2.4k</h3>
                     </div>
-                    <div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-500">
-                        <i class="fas fa-wallet"></i>
-                    </div>
+                    <div class="p-1.5 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-indigo-500"><i class="fas fa-gem text-sm"></i></div>
                 </div>
-                <p class="text-xs text-red-500 mt-2"><i class="fas fa-arrow-down"></i> 2% desde o último mês</p>
+                <p class="text-[10px] text-green-500 mt-2"><i class="fas fa-arrow-up"></i> 4% mês</p>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:-translate-y-1 transition-transform cursor-default" title="Taxa de cancelamento no período">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Índice de Retenção</p>
-                        <h3 class="text-2xl font-bold mt-1">85%</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Churn Rate</p>
+                        <h3 class="text-xl font-bold mt-1">2.1%</h3>
                     </div>
-                    <div class="p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-500">
-                        <i class="fas fa-heart"></i>
-                    </div>
+                    <div class="p-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-500"><i class="fas fa-user-minus text-sm"></i></div>
                 </div>
-                <p class="text-xs text-green-500 mt-2"><i class="fas fa-arrow-up"></i> 5% desde o último mês</p>
+                <p class="text-[10px] text-red-500 mt-2"><i class="fas fa-arrow-up"></i> 0.5% piora</p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:-translate-y-1 transition-transform cursor-default" title="Índice de Retenção de Clientes">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Retenção</p>
+                        <h3 class="text-xl font-bold mt-1">85%</h3>
+                    </div>
+                    <div class="p-1.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-500"><i class="fas fa-heart text-sm"></i></div>
+                </div>
+                <p class="text-[10px] text-green-500 mt-2"><i class="fas fa-arrow-up"></i> 5% mês</p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:-translate-y-1 transition-transform cursor-default flex flex-col justify-between" title="Net Promoter Score">
+                <div class="flex justify-between items-start">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">NPS Global</p>
+                    <span class="text-xs font-bold text-green-500">Bom</span>
+                </div>
+                <div class="flex items-end gap-2">
+                    <h3 class="text-2xl font-black mt-1 text-green-500">72</h3>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1 mt-2">
+                    <div class="bg-green-500 h-1 rounded-full" style="width: 72%"></div>
+                </div>
             </div>
         </div>
 
-        <!-- Charts -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 class="text-lg font-semibold mb-4">Crescimento de Clientes</h3>
-                <canvas id="growthChart" height="200"></canvas>
+        <!-- Charts and Feeds -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 lg:col-span-2">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Crescimento & Retenção</h3>
+                <canvas id="growthChart" height="250"></canvas>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 class="text-lg font-semibold mb-4">Aquisição por Canal</h3>
+
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Funil de Vendas</h3>
+                <div class="flex-1 flex items-center justify-center relative">
+                    <canvas id="funnelChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 lg:col-span-1">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Aquisição por Canal</h3>
                 <canvas id="channelChart" height="200"></canvas>
             </div>
+
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Atividade Recente</h3>
+                    <button class="text-xs text-primary hover:underline">Ver tudo</button>
+                </div>
+                <ul class="space-y-4">
+                    <li class="flex gap-3 items-start">
+                        <div class="p-2 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full"><i class="fas fa-shopping-cart text-xs"></i></div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Nova compra concluída</p>
+                            <p class="text-xs text-gray-500">João Silva comprou "Plano Premium Anual" (R$ 1.200)</p>
+                            <span class="text-[10px] text-gray-400">Há 5 minutos</span>
+                        </div>
+                    </li>
+                    <li class="flex gap-3 items-start">
+                        <div class="p-2 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full"><i class="fas fa-user-minus text-xs"></i></div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Alerta de Churn</p>
+                            <p class="text-xs text-gray-500">Empresa XYZ cancelou a assinatura.</p>
+                            <span class="text-[10px] text-gray-400">Há 2 horas</span>
+                        </div>
+                    </li>
+                    <li class="flex gap-3 items-start">
+                        <div class="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-500 rounded-full"><i class="fas fa-star text-xs"></i></div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Novo NPS Recebido</p>
+                            <p class="text-xs text-gray-500">Maria Santos avaliou com nota 10: "Excelente suporte!"</p>
+                            <span class="text-[10px] text-gray-400">Há 4 horas</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </main>
-</div>
+    </div>
 
 <script>
+    // Real time clock
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('realTimeClock').innerText = now.toLocaleString('pt-BR');
+    }, 1000);
+
     document.addEventListener('DOMContentLoaded', function() {
         const isDarkMode = document.documentElement.classList.contains('dark');
         const textColor = isDarkMode ? '#9ca3af' : '#4b5563';
@@ -122,25 +193,61 @@
         // Growth Chart
         const ctxGrowth = document.getElementById('growthChart').getContext('2d');
         new Chart(ctxGrowth, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-                datasets: [{
-                    label: 'Novos Clientes',
-                    data: [65, 78, 90, 105, 125, 150],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'Novos Clientes',
+                        data: [65, 78, 90, 105, 125, 150],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    },
+                    {
+                        type: 'line',
+                        label: 'Retenção (%)',
+                        data: [80, 82, 81, 85, 86, 85],
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { color: textColor } } },
+                scales: {
+                    x: { ticks: { color: textColor }, grid: { display: false } },
+                    y: { type: 'linear', display: true, position: 'left', ticks: { color: textColor }, grid: { color: gridColor } },
+                    y1: { type: 'linear', display: true, position: 'right', grid: { display: false }, ticks: { color: textColor }, min: 0, max: 100 }
+                }
+            }
+        });
+
+        // Funnel Chart Mock (using Bar chart horizontally)
+        const ctxFunnel = document.getElementById('funnelChart').getContext('2d');
+        new Chart(ctxFunnel, {
+            type: 'bar',
+            data: {
+                labels: ['Visitantes', 'Leads', 'Oportunidades', 'Clientes'],
+                datasets: [{
+                    data: [5000, 2500, 800, 340],
+                    backgroundColor: ['#e0e7ff', '#c7d2fe', '#818cf8', '#4f46e5'],
+                    borderRadius: 4,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    x: { ticks: { color: textColor }, grid: { color: gridColor } },
-                    y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                    x: { display: false },
+                    y: { ticks: { color: textColor }, grid: { display: false } }
                 }
             }
         });

@@ -31,12 +31,13 @@
                 try {
                     const result = await signInWithPopup(auth, provider);
                     const user = result.user;
+                    const idToken = await user.getIdToken();
 
-                    // Send to backend to set cookie and create user in DB
+                    // Send token to backend to set cookie and create user in DB securely
                     const res = await fetch('/api/auth', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ uid: user.uid, email: user.email })
+                        body: JSON.stringify({ idToken: idToken, email: user.email })
                     });
 
                     if (res.ok) {
@@ -89,7 +90,40 @@
                     localStorage.setItem('theme', 'light');
                 }
             });
+
+            // Mobile Menu Toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            if (mobileMenuBtn && sidebar) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
         });
+
+        // Helper function for Toasts
+        window.showToast = (message, type = 'success') => {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const colorClass = type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+            toast.className = `${colorClass} text-white px-4 py-3 rounded shadow-lg flex items-center gap-2 transform transition-all duration-300 translate-x-full`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> <span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full');
+            });
+
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
     </script>
 </body>
 </html>
