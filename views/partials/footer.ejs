@@ -1,0 +1,95 @@
+    </main>
+
+    <footer class="bg-white dark:bg-gray-800 shadow-md mt-auto py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500 dark:text-gray-400">
+            &copy; 2024 CustomerFlow Analytics. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC8TFitMZgSTmxTTIaeCznwN2CpzWoQ6Bc",
+            authDomain: "booksdev-3de79.firebaseapp.com",
+            databaseURL: "https://booksdev-3de79-default-rtdb.firebaseio.com",
+            projectId: "booksdev-3de79",
+            storageBucket: "booksdev-3de79.firebasestorage.app",
+            messagingSenderId: "39273829148",
+            appId: "1:39273829148:web:cbb6d02d4597025e09a0d9",
+            measurementId: "G-5Q3BCRZEBZ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.firebaseAuth = {
+            signIn: async () => {
+                try {
+                    const result = await signInWithPopup(auth, provider);
+                    const user = result.user;
+
+                    // Send to backend to set cookie and create user in DB
+                    const res = await fetch('/api/auth', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ uid: user.uid, email: user.email })
+                    });
+
+                    if (res.ok) {
+                        window.location.href = '/dashboard';
+                    }
+                } catch (error) {
+                    console.error("Error signing in", error);
+                    alert("Error signing in with Google.");
+                }
+            },
+            logout: async () => {
+                try {
+                    await signOut(auth);
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/';
+                } catch (error) {
+                    console.error("Error signing out", error);
+                }
+            }
+        };
+
+        // UI Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', window.firebaseAuth.signIn);
+            }
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', window.firebaseAuth.logout);
+            }
+
+            // Theme Toggle
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const htmlElement = document.documentElement;
+
+            // Check local storage for theme
+            if (localStorage.getItem('theme') === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+                htmlElement.classList.remove('dark');
+            } else {
+                htmlElement.classList.add('dark');
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                htmlElement.classList.toggle('dark');
+                if (htmlElement.classList.contains('dark')) {
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
